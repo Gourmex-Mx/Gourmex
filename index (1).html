@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>Encuesta GOURMEX · Planta Expansión</title>
+<title>Encuesta GOURMEX · Planta Principal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;700;900&display=swap">
 <style>
@@ -77,7 +77,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding-block:8px 20
       <img class="logo-f" src="../assets/logo-frankische.png" alt="Fränkische Industrial Pipes">
       <img class="logo-g" src="../assets/logo-gourmex.png" alt="GOURMEX Comedores Industriales">
     </div>
-    <h1>ENCUESTA<span class="planta">PLANTA EXPANSIÓN</span></h1>
+    <h1>ENCUESTA<span class="planta">PLANTA PRINCIPAL</span></h1>
     <p class="sub">Tu opinión nos ayuda a mejorar el comedor. Toma menos de 1 minuto.</p>
   </div>
 </header>
@@ -186,7 +186,7 @@ fecha.addEventListener('change',update);
 
 function values(){
   return {
-    planta:"Planta Expansión", nomina:nomina.value.trim(), turno:answers.turno||'', fecha:fecha.value,
+    planta:"Planta Principal", nomina:nomina.value.trim(), turno:answers.turno||'', fecha:fecha.value,
     sabor:answers.sabor||'', variedad:answers.variedad||'', barra:answers.barra||'', atencion:answers.atencion||'',
     platillo:document.getElementById('platillo').value.trim()
   };
