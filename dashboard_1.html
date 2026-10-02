@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Dashboard Comedor GOURMEX</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;700;900&display=swap">
+<style>
+/* Layout: filtros arriba → KPIs → calificación por pregunta → plantas/turnos + tendencia → sugerencias */
+:root{
+  --navy:#113F70; --orange:#E9552A;
+  --bg:#F4F6F9; --card:#FFFFFF; --line:#DFE4EC; --ink:#14263F; --muted:#5E6E85;
+  --r-mb:#113F70; --r-b:#7FA3CF; --r-reg:#F2B39C; --r-malo:#E9552A;
+  --good:#1E8A4C; --warn:#C9831A; --bad:#C23A22;
+  --font:"Red Hat Display",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--font);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px}
+header{background:var(--card);border-bottom:4px solid var(--orange)}
+.top{display:flex;align-items:center;gap:20px;padding-block:14px;flex-wrap:wrap}
+.top img{height:54px;width:auto;display:block}
+.top .t{flex:1;min-width:200px}
+h1{margin:0;font-weight:900;font-size:1.5rem;color:var(--navy);letter-spacing:.01em}
+.upd{font-size:.85rem;color:var(--muted);font-weight:500;display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--good)}
+.dot.off{background:var(--muted)}
+.demo{background:#FFF4D6;color:#7A5300;border:1px solid #F0D58A;border-radius:8px;padding:10px 14px;font-weight:700;font-size:.9rem;margin-top:16px}
+
+.filters{display:flex;gap:10px 18px;flex-wrap:wrap;align-items:center;padding-block:16px}
+.seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{font:inherit;font-weight:700;font-size:.88rem;border:0;background:none;color:var(--muted);padding:7px 12px;border-radius:7px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--navy);color:#fff}
+.seg button:focus-visible{outline:2px solid var(--orange);outline-offset:1px}
+.flabel{font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+
+main{display:grid;gap:16px;padding-bottom:40px}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+@media (max-width:860px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;min-width:0}
+.kpi .lab{font-size:.78rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.kpi .val{font-weight:900;font-size:2.4rem;color:var(--navy);line-height:1.1;margin-top:6px;font-variant-numeric:tabular-nums}
+.kpi .sub{font-size:.88rem;color:var(--muted);font-weight:500;margin-top:4px}
+.kpi .val.small{font-size:1.35rem;line-height:1.25}
+h2{margin:0 0 4px;font-size:1.05rem;font-weight:900;color:var(--navy)}
+.hint{margin:0 0 16px;color:var(--muted);font-size:.86rem;font-weight:500}
+
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.84rem;font-weight:700;color:var(--ink);margin-bottom:14px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+
+.qrow{display:grid;grid-template-columns:190px minmax(0,1fr) 64px;gap:14px;align-items:center;padding-block:9px}
+@media (max-width:640px){.qrow{grid-template-columns:minmax(0,1fr) 56px}.qrow .bar{grid-column:1/-1;grid-row:2}}
+.qname{font-weight:700;font-size:.95rem}
+.bar{display:flex;height:30px;gap:2px;border-radius:6px;overflow:hidden;background:var(--line)}
+.seg-b{display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;color:#fff;min-width:0;cursor:default;position:relative}
+.seg-b.light{color:var(--ink)}
+.qpct{font-weight:900;font-variant-numeric:tabular-nums;text-align:right;color:var(--navy)}
+
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:16px}
+@media (max-width:900px){.two{grid-template-columns:minmax(0,1fr)}}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{padding:10px 8px;text-align:center;border-bottom:1px solid var(--line);font-size:.92rem}
+th{font-size:.75rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+td:first-child,th:first-child{text-align:left;font-weight:700}
+.pill{display:inline-block;min-width:58px;padding:4px 8px;border-radius:999px;font-weight:900;font-size:.85rem}
+.pill.g{background:#E3F3EA;color:var(--good)}.pill.w{background:#FBF0DC;color:var(--warn)}.pill.b{background:#FBE6E1;color:var(--bad)}.pill.n{background:var(--bg);color:var(--muted)}
+.cnt{display:block;font-size:.75rem;color:var(--muted);font-weight:500;margin-top:2px}
+
+.chartbox{position:relative}
+svg text{font-family:var(--font)}
+.tip{position:fixed;pointer-events:none;background:var(--ink);color:#fff;font-size:.82rem;font-weight:700;padding:7px 10px;border-radius:8px;white-space:nowrap;z-index:10;transform:translate(-50%,calc(-100% - 10px))}
+.tip[hidden]{display:none}
+
+.sug{list-style:none;margin:0;padding:0;display:grid;gap:10px;max-height:420px;overflow:auto}
+.sug li{border-left:3px solid var(--orange);padding:6px 12px;background:var(--bg);border-radius:0 8px 8px 0}
+.sug .txt{font-weight:700;font-size:.95rem}
+.sug .meta{font-size:.78rem;color:var(--muted);font-weight:500;margin-top:2px}
+.empty{color:var(--muted);font-weight:500;padding:20px 0;text-align:center}
+.err{background:#FBE6E1;color:var(--bad);border-radius:8px;padding:12px 14px;font-weight:700;font-size:.9rem}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap top">
+    <img src="assets/logo-gourmex.png" alt="GOURMEX Comedores Industriales">
+    <div class="t">
+      <h1>Dashboard de satisfacción · Comedor</h1>
+      <div class="upd"><span class="dot off" id="dot"></span><span id="upd">Cargando respuestas…</span></div>
+    </div>
+    <img src="assets/logo-frankische.png" alt="Fränkische Industrial Pipes" style="height:40px">
+  </div>
+</header>
+
+<div class="wrap">
+  <div id="demo" class="demo" hidden>DATOS DE EJEMPLO · Esta vista usa respuestas inventadas para mostrar cómo se ve el dashboard.</div>
+  <div class="filters">
+    <div><span class="flabel">Planta</span>
+      <div class="seg" data-f="planta">
+        <button aria-pressed="true" data-v="">Ambas</button>
+        <button aria-pressed="false" data-v="Planta Principal">Principal</button>
+        <button aria-pressed="false" data-v="Planta Expansión">Expansión</button>
+      </div></div>
+    <div><span class="flabel">Periodo</span>
+      <div class="seg" data-f="periodo">
+        <button aria-pressed="false" data-v="1">Hoy</button>
+        <button aria-pressed="true" data-v="7">7 días</button>
+        <button aria-pressed="false" data-v="30">30 días</button>
+        <button aria-pressed="false" data-v="0">Todo</button>
+      </div></div>
+    <div><span class="flabel">Turno</span>
+      <div class="seg" data-f="turno">
+        <button aria-pressed="true" data-v="">Todos</button>
+        <button aria-pressed="false" data-v="1er turno">1º</button>
+        <button aria-pressed="false" data-v="2º turno">2º</button>
+        <button aria-pressed="false" data-v="3er turno">3º</button>
+      </div></div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="errbox" class="err" hidden></div>
+
+  <section class="kpis">
+    <div class="card kpi"><div class="lab">Respuestas</div><div class="val" id="k-n">—</div><div class="sub" id="k-n-sub">&nbsp;</div></div>
+    <div class="card kpi"><div class="lab">Satisfacción general</div><div class="val" id="k-sat">—</div><div class="sub">Muy bueno + Bueno, 4 preguntas</div></div>
+    <div class="card kpi"><div class="lab">Mejor calificado</div><div class="val small" id="k-best">—</div><div class="sub" id="k-best-sub">&nbsp;</div></div>
+    <div class="card kpi"><div class="lab">Área a mejorar</div><div class="val small" id="k-worst" style="color:var(--orange)">—</div><div class="sub" id="k-worst-sub">&nbsp;</div></div>
+  </section>
+
+  <section class="card">
+    <h2>Calificación por pregunta</h2>
+    <p class="hint">Porcentaje de respuestas en cada nivel. A la derecha, % de Muy bueno + Bueno.</p>
+    <div class="legend">
+      <span><i style="background:var(--r-mb)"></i>Muy bueno</span>
+      <span><i style="background:var(--r-b)"></i>Bueno</span>
+      <span><i style="background:var(--r-reg)"></i>Regular</span>
+      <span><i style="background:var(--r-malo)"></i>Malo</span>
+    </div>
+    <div id="qbars"></div>
+  </section>
+
+  <div class="two">
+    <section class="card">
+      <h2>Satisfacción por planta y turno</h2>
+      <p class="hint">% Muy bueno + Bueno · respuestas debajo.</p>
+      <div style="overflow-x:auto"><table id="pt"></table></div>
+    </section>
+    <section class="card">
+      <h2>Respuestas por día</h2>
+      <p class="hint" id="trend-hint">Pasa el cursor sobre una barra para ver el detalle.</p>
+      <div class="chartbox" id="trend"></div>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>Platillos sugeridos</h2>
+    <p class="hint">Lo más reciente primero.</p>
+    <ul class="sug" id="sug"></ul>
+  </section>
+</main>
+<div class="tip" id="tip" hidden></div>
+
+<script>
+/* ====== URL DEL APPS SCRIPT (la misma de las encuestas) ====== */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzv9bBHuiPkQCA1MK6ztbYDwaQ77bFcds4nA86VUUlY4tLxRNGgPK4pplbksiohNVGaXg/exec";
+const REFRESH_MS = 60000;
+
+const LEVELS = ["MUY BUENO","BUENO","REGULAR","MALO"];
+const LCOL = ["var(--r-mb)","var(--r-b)","var(--r-reg)","var(--r-malo)"];
+const LNAME = ["Muy bueno","Bueno","Regular","Malo"];
+const QS = [["sabor","Sabor de la comida"],["variedad","Variedad del menú"],["barra","Servicio en barra"],["atencion","Atención del personal"]];
+const TURNOS = ["1er turno","2º turno","3er turno"];
+const PLANTAS = ["Planta Principal","Planta Expansión"];
+const state = {planta:"", periodo:"7", turno:""};
+let DATA = {rows:[], updated:null};
+
+const $ = id => document.getElementById(id);
+const pct = (a,b) => b ? Math.round(a*100/b) : null;
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function todayStr(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10);}
+function addDays(s,n){const d=new Date(s+"T12:00:00");d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
+function fmtDay(s){const d=new Date(s+"T12:00:00");return d.toLocaleDateString("es-MX",{day:"numeric",month:"short"});}
+
+document.querySelectorAll(".seg").forEach(seg=>{
+  seg.addEventListener("click",e=>{
+    const b=e.target.closest("button"); if(!b) return;
+    seg.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed","false"));
+    b.setAttribute("aria-pressed","true");
+    state[seg.dataset.f]=b.dataset.v; render();
+  });
+});
+
+function filtered(ignore){
+  const t=todayStr(), n=+state.periodo;
+  const from = n ? addDays(t,-(n-1)) : "0000";
+  return DATA.rows.filter(r=>
+    (ignore==="planta"||!state.planta||r.planta===state.planta) &&
+    (ignore==="turno"||!state.turno||r.turno===state.turno) &&
+    (r.fecha>=from));
+}
+function satOf(rows){
+  let ok=0,tot=0;
+  rows.forEach(r=>QS.forEach(([k])=>{ if(r[k]){tot++; if(r[k]==="MUY BUENO"||r[k]==="BUENO") ok++;} }));
+  return {ok,tot,p:pct(ok,tot)};
+}
+function pill(p){
+  if(p===null) return '<span class="pill n">—</span>';
+  const c = p>=80?"g":p>=60?"w":"b";
+  return `<span class="pill ${c}">${p}%</span>`;
+}
+
+function render(){
+  const rows=filtered();
+  const n=rows.length;
+  $("k-n").textContent=n.toLocaleString("es-MX");
+  const lbl={"1":"hoy","7":"últimos 7 días","30":"últimos 30 días","0":"desde el inicio"}[state.periodo];
+  $("k-n-sub").textContent=lbl;
+  const s=satOf(rows);
+  $("k-sat").textContent = s.p===null?"—":s.p+"%";
+  $("k-sat").style.color = s.p===null?"":s.p>=80?"var(--good)":s.p>=60?"var(--warn)":"var(--bad)";
+
+  // por pregunta
+  const qstats=QS.map(([k,name])=>{
+    const c=[0,0,0,0]; rows.forEach(r=>{const i=LEVELS.indexOf(r[k]); if(i>=0)c[i]++;});
+    const t=c.reduce((a,b)=>a+b,0); return {k,name,c,t,p:pct(c[0]+c[1],t)};
+  });
+  const ranked=qstats.filter(q=>q.t).sort((a,b)=>b.p-a.p);
+  if(ranked.length){
+    $("k-best").textContent=ranked[0].name; $("k-best-sub").textContent=ranked[0].p+"% satisfechos";
+    const w=ranked[ranked.length-1];
+    $("k-worst").textContent=w.name; $("k-worst-sub").textContent=w.p+"% satisfechos";
+  } else { ["k-best","k-worst"].forEach(id=>$(id).textContent="—"); ["k-best-sub","k-worst-sub"].forEach(id=>$(id).innerHTML="&nbsp;"); }
+
+  $("qbars").innerHTML = n ? qstats.map(q=>`
+    <div class="qrow">
+      <div class="qname">${q.name}</div>
+      <div class="bar">${q.c.map((v,i)=>v?`<div class="seg-b${i===1||i===2?" light":""}" style="flex:${v};background:${LCOL[i]}" data-tip="${q.name} · ${LNAME[i]}: ${v} (${pct(v,q.t)}%)">${pct(v,q.t)>=8?pct(v,q.t)+"%":""}</div>`:"").join("")}</div>
+      <div class="qpct">${q.p===null?"—":q.p+"%"}</div>
+    </div>`).join("") : '<div class="empty">Sin respuestas en este periodo.</div>';
+
+  // planta x turno (ignora filtros de planta y turno)
+  const base=filtered("planta").filter(r=>true);
+  const pool=DATA.rows.filter(r=>{const t=todayStr(),k=+state.periodo;return r.fecha>=(k?addDays(t,-(k-1)):"0000");});
+  let h="<tr><th>Planta</th>"+TURNOS.map(t=>`<th>${t.replace(" turno","")} turno</th>`).join("")+"<th>Total</th></tr>";
+  PLANTAS.forEach(p=>{
+    h+=`<tr><td>${p.replace("Planta ","")}</td>`;
+    TURNOS.forEach(t=>{const rr=pool.filter(r=>r.planta===p&&r.turno===t); h+=`<td>${pill(satOf(rr).p)}<span class="cnt">${rr.length} resp.</span></td>`;});
+    const rr=pool.filter(r=>r.planta===p); h+=`<td>${pill(satOf(rr).p)}<span class="cnt">${rr.length} resp.</span></td></tr>`;
+  });
+  $("pt").innerHTML=h;
+
+  drawTrend(rows);
+
+  const sug=rows.filter(r=>r.platillo&&r.platillo.trim()).sort((a,b)=>b.t.localeCompare(a.t)).slice(0,60);
+  $("sug").innerHTML = sug.length ? sug.map(r=>`<li><div class="txt">${esc(r.platillo)}</div><div class="meta">${esc(r.planta.replace("Planta ",""))} · ${esc(r.turno)} · ${fmtDay(r.fecha)}</div></li>`).join("") : '<div class="empty">Todavía no hay sugerencias en este periodo.</div>';
+}
+
+function drawTrend(rows){
+  const box=$("trend");
+  const t=todayStr(); let days=+state.periodo;
+  if(!days){ const f=rows.map(r=>r.fecha).sort()[0]; days = f ? Math.min(90,Math.max(1,Math.round((new Date(t)-new Date(f))/864e5)+1)) : 7; }
+  if(days===1) days=7;
+  const keys=[...Array(days)].map((_,i)=>addDays(t,i-(days-1)));
+  const cnt=keys.map(k=>rows.filter(r=>r.fecha===k).length);
+  const sat=keys.map(k=>satOf(rows.filter(r=>r.fecha===k)).p);
+  const W=Math.max(320,box.clientWidth||600),H=230,pl=34,pr=8,pt=12,pb=28;
+  const max=Math.max(4,...cnt); const step=Math.ceil(max/4); const top=step*4;
+  const iw=W-pl-pr, ih=H-pt-pb, bw=iw/days, gap=Math.min(6,bw*0.25);
+  const y=v=>pt+ih-(v/top)*ih;
+  let s=`<svg width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="Respuestas por día">`;
+  for(let i=0;i<=4;i++){const v=step*i;s+=`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${pl-6}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${v}</text>`;}
+  const every=Math.ceil(days/8);
+  keys.forEach((k,i)=>{
+    const x=pl+i*bw+gap/2, w=Math.max(2,bw-gap), v=cnt[i];
+    if(v){const yy=y(v),hh=pt+ih-yy,r=Math.min(4,w/2,hh);
+      s+=`<path d="M${x},${pt+ih} V${yy+r} Q${x},${yy} ${x+r},${yy} H${x+w-r} Q${x+w},${yy} ${x+w},${yy+r} V${pt+ih} Z" fill="var(--navy)"/>`;}
+    s+=`<rect x="${pl+i*bw}" y="${pt}" width="${bw}" height="${ih}" fill="transparent" data-tip="${fmtDay(k)}: ${v} respuesta${v===1?"":"s"}${sat[i]!==null?" · "+sat[i]+"% satisfechos":""}"/>`;
+    if(i%every===0||i===days-1) s+=`<text x="${pl+i*bw+bw/2}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--muted)">${fmtDay(k)}</text>`;
+  });
+  s+=`<line x1="${pl}" x2="${W-pr}" y1="${pt+ih}" y2="${pt+ih}" stroke="var(--muted)" stroke-width="1"/></svg>`;
+  box.innerHTML=s;
+}
+
+// tooltip
+const tip=$("tip");
+document.addEventListener("mousemove",e=>{
+  const el=e.target.closest("[data-tip]");
+  if(!el){tip.hidden=true;return;}
+  tip.textContent=el.dataset.tip; tip.hidden=false;
+  tip.style.left=e.clientX+"px"; tip.style.top=e.clientY+"px";
+});
+window.addEventListener("resize",()=>drawTrend(filtered()));
+
+// datos
+function demoData(){
+  const rows=[],t=todayStr(),food=["Enchiladas suizas","Pozole los viernes","Más ensaladas","Chiles rellenos","Pasta Alfredo","Mole con pollo","Opciones sin carne"];
+  let seed=7; const rnd=()=>{seed=(seed*9301+49297)%233280;return seed/233280;};
+  const pick=w=>{const x=rnd();return x<w[0]?"MUY BUENO":x<w[0]+w[1]?"BUENO":x<w[0]+w[1]+w[2]?"REGULAR":"MALO";};
+  for(let d=0;d<30;d++){const f=addDays(t,-d);const n=4+Math.floor(rnd()*9);
+    for(let i=0;i<n;i++){rows.push({t:f+"T13:"+String(10+i).padStart(2,"0"),planta:PLANTAS[rnd()<.6?0:1],turno:TURNOS[Math.floor(rnd()*3)],fecha:f,
+      sabor:pick([.45,.35,.15]),variedad:pick([.25,.35,.28]),barra:pick([.4,.4,.15]),atencion:pick([.55,.33,.09]),platillo:rnd()<.18?food[Math.floor(rnd()*food.length)]:""});}}
+  return {rows,updated:null};
+}
+// Acepta "2026-10-02", "2026-10-02T09:00" o "Fri Oct 02 2026 09:00:35 GMT-0600 (...)"
+const MES={Jan:"01",Feb:"02",Mar:"03",Apr:"04",May:"05",Jun:"06",Jul:"07",Aug:"08",Sep:"09",Oct:"10",Nov:"11",Dec:"12"};
+function normDate(v,withTime){
+  v=String(v||"").trim(); if(!v) return "";
+  let m=v.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/);
+  if(m) return withTime ? `${m[1]}-${m[2]}-${m[3]}T${m[4]||"00"}:${m[5]||"00"}` : `${m[1]}-${m[2]}-${m[3]}`;
+  m=v.match(/^\w{3} (\w{3}) (\d{1,2}) (\d{4})(?: (\d{2}):(\d{2}))?/);
+  if(m&&MES[m[1]]){const d=`${m[3]}-${MES[m[1]]}-${m[2].padStart(2,"0")}`;return withTime?`${d}T${m[4]||"00"}:${m[5]||"00"}`:d;}
+  const d=new Date(v.replace(/\s*\(.*\)\s*$/,""));
+  if(isNaN(d)) return "";
+  const p=n=>String(n).padStart(2,"0"), s=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+  return withTime?`${s}T${p(d.getHours())}:${p(d.getMinutes())}`:s;
+}
+async function load(){
+  if(location.hash==="#demo"){DATA=demoData();$("demo").hidden=false;$("upd").textContent="Vista de ejemplo";render();return;}
+  try{
+    const r=await fetch(SCRIPT_URL+"?t="+Date.now());
+    const j=await r.json();
+    if(!j.rows) throw new Error("sin datos");
+    j.rows.forEach(r=>{ r.t=normDate(r.t,true); r.fecha=normDate(r.fecha,false)||r.t.slice(0,10); });
+    DATA=j; $("errbox").hidden=true;
+    $("dot").classList.remove("off");
+    const now=new Date();
+    $("upd").textContent="En vivo · actualizado "+now.toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"})+" · se refresca cada minuto";
+    render();
+  }catch(e){
+    $("dot").classList.add("off");
+    $("errbox").textContent="No se pudieron leer las respuestas. Revisa que el Apps Script tenga la función doGet y que esté implementado como Nueva versión.";
+    $("errbox").hidden=false;
+    if(!DATA.rows.length) render();
+  }
+}
+load(); if(location.hash!=="#demo") setInterval(load,REFRESH_MS);
+</script>
+</body>
+</html>
